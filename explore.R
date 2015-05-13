@@ -24,6 +24,7 @@ one.hour <- function(a, b)
 #' @return data.frame with one row per space
 space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   readings.present <- readings %>%
+    filter(datetime <= present) %>%
     group_by(hackerspace) %>%
     summarize(datetime = max(datetime)) %>%
     mutate(is.current = one.hour(datetime, present)) %>%
@@ -36,8 +37,9 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   }
 
 
+  print(readings.present)
   print(space.week.features(readings.past))
   print(space.week.features(readings.present))
 }
 
-space.features(readings, present = as.POSIXct("2013-07-07 12:35:37 UTC"))
+space.features(readings, present = as.POSIXct("2013-07-07 12:38:37 UTC"))
