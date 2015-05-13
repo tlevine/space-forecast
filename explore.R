@@ -9,3 +9,6 @@ names(readings)[2] <- 'datetime'
 library(dplyr)
 spaces <- group_by(readings, hackerspace)
 summarize(spaces, open = mean(open))
+
+space.days <- group_by(readings, hackerspace, day = weekdays(datetime))
+space.days <- select(space.days, hackerspace, day, open)
