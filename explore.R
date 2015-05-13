@@ -35,10 +35,6 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   readings.past <- readings %>%
     filter(datetime < present)
 
-    print(readings.present)
-    print(readings.past[1:3,])
-    return()
-
   if (nrow(readings.past) == 0) {
     stop('No historical data')
   }
@@ -46,8 +42,12 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   readings.present %>%
     mutate(is.current = one.hour(datetime, present)) %>%
     select(hackerspace, is.current) %>%
-    inner_join(space.week.features(readings.present), by = 'hackerspace')
-  #print(space.week.features(readings.present))
+    inner_join(space.week.features(readings.present), by = 'hackerspace') %>%
+    select(hackerspace, day, hour,
+           currently.open = if (is.current) open else 0,
+           currently.closed = if (is.current) closed else 0,
+           currently.na = if (is.current) na else 1) %>%
+    inner_join(space.week.features(readings.past))
 }
 
 print(space.features(readings, present = as.POSIXct("2013-07-07 12:38:37 UTC")))
