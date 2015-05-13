@@ -56,7 +56,10 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
            cur.na = ifelse(is.current, na, 1)) %>%
     select(hackerspace, day, hour,
            cur.open, cur.closed, cur.na) %>%
-    inner_join(features.past)
+    inner_join(features.past) %>%
+    select(hackerspace,
+           cur.open, cur.closed, cur.na,
+           hist.open, hist.closed, hist.na, hist.total)
 }
 
 df <- space.features(readings, present = as.POSIXct("2013-07-07 12:38:37 UTC"))
