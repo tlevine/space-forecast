@@ -23,20 +23,21 @@ one.hour <- function(a, b)
 #' Combine historical with whether the space was open in the previous hour?
 #' @return data.frame with one row per space
 space.features <- function(readings, present = as.POSIXct(Sys.time())) {
-  present.rounded <- min(readings$datetime[readings$datetime <= present])
-
   readings.present <- readings %>%
     group_by(hackerspace) %>%
     summarize(datetime = max(datetime)) %>%
     mutate(is.current = one.hour(datetime, present)) %>%
     left_join(readings)
-  print(nrow(readings.present))
 
-  readings.past <- subset(readings, datetime < present.rounded)
+  readings.past <- subset(readings, datetime < present)
 
   if (nrow(readings.past) == 0) {
-    warning('No historical data')
+    stop('No historical data')
   }
+
+
   print(space.week.features(readings.past))
   print(space.week.features(readings.present))
 }
+
+space.features(readings, present = as.POSIXct("2013-07-07 12:35:37 UTC"))
