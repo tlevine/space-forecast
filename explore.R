@@ -7,10 +7,17 @@ names(readings)[2] <- 'datetime'
 
 # Stuff
 library(dplyr)
-space.days <- group_by(readings, hackerspace, day = weekdays(datetime),
-                       hour = as.numeric(strftime(datetime, '%H')))
-space.days <- select(space.days, hackerspace, day, hour, open)
-historical <- summarize(space.days, open = mean(open), count = n())
+
+#' Extract features related to long-term history.
+history <- function(present = as.POSIXct(Sys.time())) {
+  # Ignore future readings
+  readings <- subset(readings, datetime <= present)
+
+  space.days <- group_by(readings, hackerspace, day = weekdays(datetime),
+                         hour = as.numeric(strftime(datetime, '%H')))
+  space.days <- select(space.days, hackerspace, day, hour, open)
+  summarize(space.days, open = mean(open), count = n())
+}
 
 # Combine historical with whether the space was open in the previous hour?
 
