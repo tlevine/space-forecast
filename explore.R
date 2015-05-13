@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Load spreadsheet
-readings <- read.csv('space.csv', colClasses = c('character', 'numeric', 'logical'))
+readings <- read.csv('space.csv', colClasses = c('factor', 'numeric', 'logical'))
 readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
 names(readings)[2] <- 'datetime'
 
@@ -12,3 +12,9 @@ summarize(spaces, open = mean(open))
 
 space.days <- group_by(readings, hackerspace, day = weekdays(datetime))
 space.days <- select(space.days, hackerspace, day, open)
+summarize(space.days, open = mean(open))
+
+
+# 
+set.seed(284488333)
+
