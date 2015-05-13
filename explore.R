@@ -14,9 +14,9 @@ space.week.features <- function(readings) readings %>%
   group_by(hackerspace, day = weekdays(datetime),
            hour = as.numeric(strftime(datetime, '%H'))) %>%
   select(hackerspace, day, hour, open) %>%
-  summarize(open = mean(open == 'TRUE'),
-            closed = mean(open == 'FALSE'),
-            na = mean(open == 'NA'),
+  summarize(open = sum(open == 'TRUE'),
+            closed = sum(open == 'FALSE'),
+            na = sum(open == 'NA'),
             n.obs = n())
 
 #' Are the two times within an hour of each other?
@@ -39,15 +39,25 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
     stop('No historical data')
   }
 
+  features.past <- space.week.features(readings.past) %>%
+                   mutate(hist.open = open,
+                          hist.closed = closed,
+                          hist.na = na,
+                          hist.total = n.obs) %>%
+                   select(hackerspace, day, hour,
+                          hist.open, hist.closed, hist.na, hist.total)
+
   readings.present %>%
     mutate(is.current = one.hour(datetime, present)) %>%
     select(hackerspace, is.current) %>%
     inner_join(space.week.features(readings.present), by = 'hackerspace') %>%
+    mutate(cur.open = ifelse(is.current, open, 0),
+           cur.closed = ifelse(is.current, closed, 0),
+           cur.na = ifelse(is.current, na, 1)) %>%
     select(hackerspace, day, hour,
-           currently.open = if (is.current) open else 0,
-           currently.closed = if (is.current) closed else 0,
-           currently.na = if (is.current) na else 1) %>%
-    inner_join(space.week.features(readings.past))
+           cur.open, cur.closed, cur.na) %>%
+    inner_join(features.past)
 }
 
-print(space.features(readings, present = as.POSIXct("2013-07-07 12:38:37 UTC")))
+df <- space.features(readings, present = as.POSIXct("2013-07-07 12:38:37 UTC"))
+print(df)
