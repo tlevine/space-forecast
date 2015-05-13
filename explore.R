@@ -14,10 +14,10 @@ space.week.features <- function(readings) readings %>%
   group_by(hackerspace, day = weekdays(datetime),
            hour = as.numeric(strftime(datetime, '%H'))) %>%
   select(hackerspace, day, hour, open) %>%
-  summarize(p.open = mean(open == 'TRUE'),
-            p.closed = mean(open == 'FALSE'),
-            p.na = mean(open == 'NA'),
-            count = n())
+  summarize(open = mean(open == 'TRUE'),
+            closed = mean(open == 'FALSE'),
+            na = mean(open == 'NA'),
+            n.obs = n())
 
 #' Are the two times within an hour of each other?
 one.hour <- function(a, b)
@@ -29,19 +29,19 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   readings.present <- readings %>%
     filter(datetime <= present) %>%
     group_by(hackerspace) %>%
-    summarize(datetime = max(datetime)) %>%
-    mutate(is.current = one.hour(datetime, present)) %>%
-    left_join(readings)
-
-  readings.past <- subset(readings, datetime < present)
+    summarize(datetime = max(datetime))
+  readings.past <- readings %>%
+    filter(datetime < present)
 
   if (nrow(readings.past) == 0) {
     stop('No historical data')
   }
 
-
   readings.present %>%
-    inner_join(space.week.features(readings.past), by = 'hackerspace')
+    mutate(is.current = one.hour(datetime, present)) %>%
+    left_join(readings) %>%
+    select(hackerspace, is.current) %>%
+    inner_join(space.week.features(readings.present), by = 'hackerspace')
   #print(space.week.features(readings.present))
 }
 
