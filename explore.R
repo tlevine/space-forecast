@@ -29,9 +29,15 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
   readings.present <- readings %>%
     filter(datetime <= present) %>%
     group_by(hackerspace) %>%
-    summarize(datetime = max(datetime))
+    summarize(datetime = max(datetime)) %>%
+    left_join(readings)
+
   readings.past <- readings %>%
     filter(datetime < present)
+
+    print(readings.present)
+    print(readings.past[1:3,])
+    return()
 
   if (nrow(readings.past) == 0) {
     stop('No historical data')
@@ -39,7 +45,6 @@ space.features <- function(readings, present = as.POSIXct(Sys.time())) {
 
   readings.present %>%
     mutate(is.current = one.hour(datetime, present)) %>%
-    left_join(readings) %>%
     select(hackerspace, is.current) %>%
     inner_join(space.week.features(readings.present), by = 'hackerspace')
   #print(space.week.features(readings.present))
