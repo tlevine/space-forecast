@@ -25,3 +25,6 @@ features <- readings.lastweek %>%
     summarize(yes = sum(open == 'TRUE'),
               no = sum(open == 'FALSE'),
               broken = sum(open == 'NA'))
+
+
+# subset(features, space == "Hackerspace Bremen e.V." & day == 'Thursday')
