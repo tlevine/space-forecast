@@ -7,7 +7,9 @@ readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
 names(readings)[2] <- 'datetime'
 
 # Bucket by hour.
-readings$day <- factor(weekdays(readings$datetime))
+readings$day <- factor(weekdays(readings$datetime),
+                       levels = c('Sunday', 'Monday', 'Tuesday', 'Wednesday',
+                                  'Thursday', 'Friday', 'Saturday'))
 readings$hour <- as.numeric(strftime(readings$datetime, '%H'))
 
 # Subset to last week.
