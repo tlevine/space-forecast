@@ -25,10 +25,14 @@ predict <- function(readings, the.space, future, radius = as.difftime(0.25, unit
                          (datetime < (past + radius)))
   open <- sum(df$open == 'TRUE')
   closed <- sum(df$open == 'FALSE')
-  if (open + closed == 0) {
+  n <- open + closed
+  if (n == 0) {
+    cat('I could not estimate the probability because there were no appropriate readings last week.\n')
     NA
   } else {
-    open / (open + closed)
+    p <- open / n
+    cat(paste('I give', the.space, 'a', p, 'chance of being open. This probability is based on', n, 'readings for', the.space, 'a week earlier.\n'))
+    p
   }
 }
 
