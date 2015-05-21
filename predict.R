@@ -17,14 +17,23 @@ end <- max(readings$datetime)
 start <- end - as.difftime(1, units = 'weeks')
 readings.lastweek <- subset(readings, datetime > start)
 
-# Come up with scores
-library(dplyr)
-
-features <- readings.lastweek %>%
-    group_by(space, day, hour) %>%
-    summarize(yes = sum(open == 'TRUE'),
-              no = sum(open == 'FALSE'),
-              broken = sum(open == 'NA'))
-
-
 # subset(features, space == "Hackerspace Bremen e.V." & day == 'Thursday')
+predict <- function(readings, the.space, future, radius = as.difftime(0.25, units = 'hours')) {
+  past <- future - as.difftime(1, units = 'weeks')
+  df <- subset(readings, space == the.space & datetime > (past - radius) & difftime < (past + radius))
+  open <- sum(df$open == 'TRUE')
+  closed <- sum(df$open == 'FALSE')
+  if (open + closed == 0) {
+    NA
+  } else {
+    open / (open + closed)
+  }
+}
+
+# library(dplyr)
+# 
+# features <- readings.lastweek %>%
+#     group_by(space, day, hour) %>%
+#     summarize(yes = sum(open == 'TRUE'),
+#               no = sum(open == 'FALSE'),
+#               broken = sum(open == 'NA'))
