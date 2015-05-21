@@ -20,7 +20,9 @@ readings.lastweek <- subset(readings, datetime > start)
 # subset(features, space == "Hackerspace Bremen e.V." & day == 'Thursday')
 predict <- function(readings, the.space, future, radius = as.difftime(0.25, units = 'hours')) {
   past <- future - as.difftime(1, units = 'weeks')
-  df <- subset(readings, space == the.space & datetime > (past - radius) & difftime < (past + radius))
+  df <- subset(readings, (space == the.space) &
+                         (datetime > (past - radius)) &
+                         (datetime < (past + radius)))
   open <- sum(df$open == 'TRUE')
   closed <- sum(df$open == 'FALSE')
   if (open + closed == 0) {
