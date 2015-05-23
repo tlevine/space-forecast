@@ -14,3 +14,5 @@ app = Bottle()
 @view('plot')
 def home():
     return {}
+
+app.run(server = 'cherrypy', reloader = True, port = 8081, host = '127.0.0.1')
