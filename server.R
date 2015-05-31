@@ -20,7 +20,7 @@ start <- end - as.difftime(1, units = 'weeks')
 readings.lastweek <- subset(readings, datetime > start)
 
 readings.grouped <- readings %>%
-                    group_by(space, date = as.Date(datetime), hour) %>%
+                    group_by(space, date = as.POSIXct(as.Date(datetime)), hour) %>%
                       summarize(yes = sum(open == 'TRUE'),
                                 no = sum(open == 'FALSE'),
                                 broken = sum(open == 'NA'),
@@ -28,10 +28,8 @@ readings.grouped <- readings %>%
 # readings.grouped$p <- ifelse(df$n > 0, df$yes / df$n, NA)
 
 plot.space <- function(readings.grouped, the.space,
-                       past = as.POSIXct(Sys.time()) - as.difftime(1, units = 'weeks'),
-                       radius = as.difftime(12, units = 'hours')) {
-    as.POSIXct(date)
-    as.POSIXct(past)
+                       past = as.POSIXct(Sys.time()) - as.difftime(1, units = 'weeks'))
+  
   df <- subset(readings.grouped, 
     space == the.space & abs(difftime(date, past, units = 'days')) < 1)
 
