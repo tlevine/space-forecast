@@ -5,7 +5,6 @@ library(ggplot2)
 # Load spreadsheet.
 if (!('readings' %in% ls())) {
   readings <- read.csv('space.csv', colClasses = c('factor', 'numeric', 'factor'),
-                       nrows = 1e4,
                        na.strings = NULL)
   readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
   names(readings)[2] <- 'datetime'
