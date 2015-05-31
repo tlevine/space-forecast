@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 library(dplyr)
 library(ggplot2)
+library(shiny)
 
 # Load spreadsheet.
 if (!('readings' %in% ls())) {
@@ -42,3 +43,10 @@ plot.space <- function(readings.grouped, the.space,
     aes(x = datetime, y = p) +
     geom_bar(stat = 'identity')
 }
+
+app <- function(input, output) {
+  output$distPlot <- renderPlot(plot.space(readings.grouped,
+                                           input$space,
+                                           input$datetime))
+}
+# shinyServer(app)
