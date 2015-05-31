@@ -3,10 +3,12 @@ library(dplyr)
 library(ggplot2)
 
 # Load spreadsheet.
-readings <- read.csv('space.csv', colClasses = c('factor', 'numeric', 'factor'),
-                     na.strings = NULL)
-readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
-names(readings)[2] <- 'datetime'
+if (!('readings' %in% ls())) {
+  readings <- read.csv('space.csv', colClasses = c('factor', 'numeric', 'factor'),
+                       na.strings = NULL)
+  readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
+  names(readings)[2] <- 'datetime'
+}
 
 # Bucket by hour.
 readings$day <- factor(weekdays(readings$datetime),
@@ -19,22 +21,24 @@ end <- max(readings$datetime)
 start <- end - as.difftime(1, units = 'weeks')
 readings.lastweek <- subset(readings, datetime > start)
 
-readings.grouped <- readings %>%
-                    group_by(space, date = as.POSIXct(as.Date(datetime)), hour) %>%
-                      summarize(yes = sum(open == 'TRUE'),
-                                no = sum(open == 'FALSE'),
-                                broken = sum(open == 'NA'),
-                                n = n())
-# readings.grouped$p <- ifelse(df$n > 0, df$yes / df$n, NA)
+if (!('readings.grouped' %in% ls())) {
+  readings.grouped <- readings %>%
+                      group_by(space, date = as.POSIXct(as.Date(datetime)), hour) %>%
+                        summarize(yes = sum(open == 'TRUE'),
+                                  no = sum(open == 'FALSE'),
+                                  broken = sum(open == 'NA'),
+                                  n = n()) %>%
+                        mutate(datetime = as.POSIXct(paste0(df$date, ' ', hour, ':00:00')),
+                               p = yes/max(yes + no, 1))
+}
 
 plot.space <- function(readings.grouped, the.space,
-                       past = as.POSIXct(Sys.time()) - as.difftime(1, units = 'weeks'))
+                       past = as.POSIXct(Sys.time()) - as.difftime(1, units = 'weeks')) {
   
   df <- subset(readings.grouped, 
-    space == the.space & abs(difftime(date, past, units = 'days')) < 1)
+    space == the.space & abs(difftime(readings.grouped$date, past, units = 'days')) < 1)
 
   ggplot(df) +
-    aes(x = paste0(date, ', ', hour, ':00'),
-        y = yes/n) +
+    aes(x = datetime, y = p) +
     geom_bar(stat = 'identity')
 }
