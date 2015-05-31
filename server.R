@@ -5,6 +5,7 @@ library(ggplot2)
 # Load spreadsheet.
 if (!('readings' %in% ls())) {
   readings <- read.csv('space.csv', colClasses = c('factor', 'numeric', 'factor'),
+                       nrows = 1e4,
                        na.strings = NULL)
   readings$timestamp <- as.POSIXct(readings$timestamp, origin = '1970-01-01')
   names(readings)[2] <- 'datetime'
@@ -28,7 +29,7 @@ if (!('readings.grouped' %in% ls())) {
                                   no = sum(open == 'FALSE'),
                                   broken = sum(open == 'NA'),
                                   n = n()) %>%
-                        mutate(datetime = as.POSIXct(paste0(df$date, ' ', hour, ':00:00')),
+                        mutate(datetime = as.POSIXct(paste0(date, ' ', hour, ':00:00')),
                                p = yes/max(yes + no, 1))
 }
 
